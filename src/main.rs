@@ -1,22 +1,12 @@
-use std::thread;
-use std::thread::JoinHandle;
-use std::sync::{Arc, Mutex, MutexGuard};
+use tokio::time::{sleep, Duration};
 
-fn main() {
-    let shared_counter: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
-    let mut handles:Vec<JoinHandle<()>> = Vec::new();
-    for i in 1..=10 {
-        let shared_counter_ref:Arc<Mutex<u32>> = shared_counter.clone();
-        handles.push(thread::spawn(move || {
-            let mut c:MutexGuard<u32> = shared_counter_ref.lock().unwrap();
-            *c += 1;
-            println!("Hello, from thread. {}, {:?}", i, c);
-        }));
-    }
+async fn add(left: i32, right: i32) -> i32 {
+    sleep(Duration::from_millis(5000)).await;
+    return left + right;
+}
 
-    for handle in handles {
-        handle.join().unwrap();
-    }
-
-    println!("{}", *shared_counter.lock().unwrap());
+#[tokio::main]
+async fn main() {
+    let ans = add(10, 20).await;
+    println!("{}", ans);
 }
