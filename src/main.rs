@@ -1,12 +1,23 @@
-use tokio::time::{sleep, Duration};
+use actix_web::{web, get, post, App, HttpResponse, HttpServer, Responder};
 
-async fn add(left: i32, right: i32) -> i32 {
-    sleep(Duration::from_millis(5000)).await;
-    return left + right;
+#[get("/user/{id}")]
+async fn user(web::Path(id): web::Path<i32>) -> impl Responder {
+    HttpResponse::Ok().body(format!("user_id is {}", id))
 }
 
-#[tokio::main]
-async fn main() {
-    let ans = add(10, 20).await;
-    println!("{}", ans);
+#[post("/")]
+async fn post() -> impl Responder {
+    HttpResponse::Ok().body("post")
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+        App::new()
+            .service(user)
+            .service(post)   
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }
